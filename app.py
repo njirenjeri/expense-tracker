@@ -156,8 +156,51 @@ def delete_expense(id):
     flash('Expense deleted', 'success')
     return redirect(url_for('dashboard'))
 
+# Category routes
+@app.route('/categories')
+@login_required
+def list_categories():
+    categories = Category.query.all()
+    return render_template('categories.html', categories=categories)
 
 
+@app.route('/categories/add', methods=['GET', 'POST'])
+@login_required
+def add_category():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        if Category.query.filter_by(name = name).first():
+            flash("Category already exists", 'error')
+        else:
+            new_category = Category(name = name, description = description)
+            db.session.add(new_category)
+            db.session.commit()
+            flash('Category Added!', 'successs')
+            return render_template('list_categories')
+    return render_template('add_category.html')
+
+@app.route('/categories/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_category(id):
+    category = Category.query.get_or_404(id)
+    if request.method == 'POST':
+        category.name = request.form['name']
+        category.description = request.form['description']
+
+        db.session.commit()
+        flash('Category Updated', 'success')
+        return redirect(url_for('list_categories')                   )
+    return render_template('edit_category.html', category=category)
+    
+@app.route('/categories/delete/<int:id>')
+@login_required
+def delete_expense(id):
+    category = Category.query.get_or_404(id)
+    db.session.delete(category)
+    db.commit()
+    flash('Category deleted', 'success')
+    return redirect(url_for('list_categories'))
 
 
 if __name__ == '__main__':
