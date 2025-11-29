@@ -121,6 +121,27 @@ def add_expense():
     
     return render_template('add_expense.html', categories = categories)
 
+@app.route('/edit-expense/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_expense(id):
+    expense = Expense.query.get_or_404(id)
+    categories = Category.query.all()
+
+    if expense.user_id != current_user.id:
+        flash('Unauthorized Access!', 'error')
+        return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        expense.title = request.form['title']
+        expense.amount = request.form['amount']
+        expense.date = request.form['date']
+        expense.category_id = request.form['category_id']
+
+        db.commit()
+        flash('Expense Updated', 'success')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('edit_expense.html', expense = expense, categories = categories)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
