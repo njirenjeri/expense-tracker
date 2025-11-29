@@ -60,7 +60,37 @@ def login():
 
 
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    expenses = Expense.query.filter_by(user_id = current_user.id).all()
+    category_totals = {}
 
+    # calculate total amt spent on all categories
+    for exp in expenses:
+        cat_name = exp.category.name if exp.category else 'Uncategorized'
+        category_totals['cat_name'] = category_totals.get(cat_name, 0) + exp.amount
+
+    # create a suggestion based on amt spent on each category 
+    suggestions = []
+    if category_totals :
+        max_cat = max(category_totals, key = category_totals.get)
+        max_amt = category_totals[max_cat]
+
+        if max_amt > 3000:
+            suggestions.append(f"You spent ${max_amt} on {max_cat}. Consider reducing it.")
+        else:
+            suggestions.append("You are within healthy spending limits")
+
+    
+    return render_template(
+        'dashboard.html',
+        username = current_user.username,
+        expenses = expenses,
+        categories = list(category_totals.keys()),
+        totals = list(category_totals.values()),
+        suggestions = suggestions
+    )
 
 
 if __name__ == '__main__':
