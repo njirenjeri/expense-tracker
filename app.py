@@ -142,9 +142,26 @@ def edit_expense(id):
     
     return render_template('edit_expense.html', expense = expense, categories = categories)
 
+@app.route('delete-expense/<int:id>')
+@login_required
+def delete_expense(id):
+    expense = Expense.query.get_or_404(id)
+
+    if expense.user_id != current_user.id:
+        flash('Unauthorized Access!', 'error')
+        return redirect('dashboard')
+    
+    db.session.delete(expense)
+    db.session.commit()
+    flash('Expense deleted', 'success')
+    return redirect(url_for('dashboard'))
+
+
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     
     app.run(debug=True)
-
