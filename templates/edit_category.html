@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-md-6">
+    <form action="" method="POST" class="shadow p-3">
+        <h2 class="text-center">{{ 'Edit' if category else 'Add' }} Category</h2>
+        <input type="text" name="name" value="{{ category.name if category else '' }}" id="" class="form-control mb-3" placeholder="Category Name">
+        <input type="text" name="description" value="{{ category.description if category else '' }}" id="" class="form-control mb-3" placeholder="Description (Optional)">
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+</div>
+{% endblock %}

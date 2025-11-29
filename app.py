@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
-from flask_login import LoginManager, login_user, login_required, current_user
+from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from models import db, Expense, User, Category
@@ -24,7 +24,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return '<h1>Hello World</h1>'
+    return render_template('login.html')
 
 
 @app.route('/register', methods = ['GET', 'POST'])
@@ -41,7 +41,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
 
-            flash('Regiastratiion Successfull', 'success')
+            flash('Registration Successfull', 'success')
             return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -58,7 +58,11 @@ def login():
         
     return render_template('login.html')
 
-
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 @app.route('/dashboard')
 @login_required
@@ -69,11 +73,11 @@ def dashboard():
     # calculate total amt spent on all categories
     for exp in expenses:
         cat_name = exp.category.name if exp.category else 'Uncategorized'
-        category_totals['cat_name'] = category_totals.get(cat_name, 0) + exp.amount
+        category_totals[cat_name] = category_totals.get(cat_name, 0) + exp.amount
 
     # create a suggestion based on amt spent on each category 
     suggestions = []
-    if category_totals :
+    if category_totals:
         max_cat = max(category_totals, key = category_totals.get)
         max_amt = category_totals[max_cat]
 
@@ -136,13 +140,13 @@ def edit_expense(id):
         expense.date = request.form['date']
         expense.category_id = request.form['category_id']
 
-        db.commit()
+        db.session.commit()
         flash('Expense Updated', 'success')
         return redirect(url_for('dashboard'))
     
     return render_template('edit_expense.html', expense = expense, categories = categories)
 
-@app.route('delete-expense/<int:id>')
+@app.route('/delete-expense/<int:id>')
 @login_required
 def delete_expense(id):
     expense = Expense.query.get_or_404(id)
@@ -177,7 +181,7 @@ def add_category():
             db.session.add(new_category)
             db.session.commit()
             flash('Category Added!', 'successs')
-            return render_template('list_categories')
+            redirect(url_for('list_categories'))
     return render_template('add_category.html')
 
 @app.route('/categories/edit/<int:id>', methods=['GET', 'POST'])
@@ -195,10 +199,10 @@ def edit_category(id):
     
 @app.route('/categories/delete/<int:id>')
 @login_required
-def delete_expense(id):
+def delete_category(id):
     category = Category.query.get_or_404(id)
     db.session.delete(category)
-    db.commit()
+    db.session.commit()
     flash('Category deleted', 'success')
     return redirect(url_for('list_categories'))
 

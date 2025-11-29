@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-md-6">
+    <div class="d-flex justify-content-between mb-4">
+        <h2>Categories</h2>
+        <a href="{{ url_for('add_category') }}" class="btn btn-outline-primary">+ Category</a>
+    </div>
+    <ol>
+        {% for category in categories %}
+            <li class="d-flex flex-row justify-content-between">
+                <p>{{ category.name }}</p>
+                <div>
+                    <a href="{{ url_for('edit_category', id=category.id)}}" class="btn btn-outline-success">&#9998;</a>
+                    <a href="{{ url_for('delete_category', id=category.id)}}" class="btn btn-outline-danger">&#128465;</a>
+                </div>
+            </li>
+            <hr>
+        {% endfor %}
+    </ol>
+</div>
+{% endblock %}

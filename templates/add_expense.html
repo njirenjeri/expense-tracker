@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-md-6">
+    <form action="" method="POST" class="shadow p-3">
+        <h2 class="text-center">{{ 'Edit' if expense else 'Add' }} Expense</h2>
+        <input type="text" name="title" value="{{ expense.title if expense else '' }}" id="" class="form-control mb-3" placeholder="Expense Name">
+        <input type="number" name="amount" step="0.01" value="{{ expense.amount if expense else '' }}" id="" class="form-control mb-3" placeholder="Amount">
+        <input type="date" name="date" step="0.01" value="{{ expense.date if expense else '' }}" id="" class="form-control mb-3" placeholder="date">
+        <select name="category_id" id="" class="form-control mb-3">
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if expense and expense.category_id == cat.id %}selected{% endif %}>{{cat.name}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+</div>
+{% endblock %}
