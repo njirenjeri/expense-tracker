@@ -93,6 +93,34 @@ def dashboard():
     )
 
 
+
+# expense routes
+@app.route('/add-expense', methods=['GET', 'POST'])
+@login_required
+def add_expense():
+    categories = Category.query.all()
+
+    if request.method == 'POST':
+        title = request.form['title']
+        amount = float(request.form['amount'])
+        date = request.form['date']
+        category_id = request.form['category_id']
+
+        new_expense = Expense(
+            title = title,
+            amount = amount,
+            date = date,
+            user_id = current_user.id,
+            category_id = category_id
+        )
+
+        db.session.add(new_expense)
+        db.session.commit()
+        flash('Expense Added', 'success')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('add_expense.html', categories = categories)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
